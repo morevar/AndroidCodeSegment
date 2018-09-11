@@ -4,7 +4,6 @@ import android.media.MediaPlayer;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewParent;
-import android.view.WindowManager;
 
 public class VideoUtil {
 
@@ -34,14 +33,17 @@ public class VideoUtil {
      * @param height {@link MediaPlayer.OnVideoSizeChangedListener#onVideoSizeChanged} 方法中的height
      * @param type 图片或视频的展示方式
      */
-    public static void adjustSize(WindowManager windowManager, SurfaceView surfaceView, int width, int height, DisplayType type) {
-        int rootWidth = windowManager.getDefaultDisplay().getWidth();
-        int rootHeight = windowManager.getDefaultDisplay().getHeight();
+    public static void adjustSize(SurfaceView surfaceView, int width, int height, DisplayType type) {
+        int rootWidth;  // = windowManager.getDefaultDisplay().getWidth();
+        int rootHeight; // = windowManager.getDefaultDisplay().getHeight();
         ViewParent viewParent = surfaceView.getParent();
         if (viewParent != null) {
             View v = (View) viewParent;
             rootWidth = v.getWidth();
             rootHeight = v.getHeight();
+        } else {
+            rootWidth = width;
+            rootHeight = height;
         }
 
         // 1, 设置宽高
@@ -54,29 +56,23 @@ public class VideoUtil {
                 break;
             case CENTER_CROP:
             case CENTER_INSIDE:
-                if (width <= rootWidth && height <= rootHeight) {
-                    // 设置宽高
-                    surfaceParams.width = width;
-                    surfaceParams.height = height;
+                float rootViewAspectRatio = rootWidth * 1.0f / rootHeight;
+                float mediaAspectRatio = width * 1.0f / height;
+                boolean fitWidth;
+                if (type == DisplayType.CENTER_CROP) {
+                    fitWidth = mediaAspectRatio < rootViewAspectRatio;
                 } else {
-                    float rootViewAspectRatio = rootWidth * 1.0f / rootHeight;
-                    float mediaAspectRatio = width * 1.0f / height;
-                    boolean fitWidth;
-                    if (type == DisplayType.CENTER_CROP) {
-                        fitWidth = mediaAspectRatio < rootViewAspectRatio;
-                    } else {
-                        fitWidth = mediaAspectRatio > rootViewAspectRatio;
-                    }
+                    fitWidth = mediaAspectRatio > rootViewAspectRatio;
+                }
 
-                    if (fitWidth) {
-                        // 宽度填充，高度等比例放大/缩小
-                        surfaceParams.width = rootWidth;
-                        surfaceParams.height = (int) ((rootWidth * 1.0f / width) * height);
-                    } else {
-                        // 高度填充，宽度等比例放大/缩小
-                        surfaceParams.height = rootHeight;
-                        surfaceParams.width = (int) ((rootHeight * 1.0f / height) * width);
-                    }
+                if (fitWidth) {
+                    // 宽度填充，高度等比例放大/缩小
+                    surfaceParams.width = rootWidth;
+                    surfaceParams.height = (int) ((rootWidth * 1.0f / width) * height);
+                } else {
+                    // 高度填充，宽度等比例放大/缩小
+                    surfaceParams.height = rootHeight;
+                    surfaceParams.width = (int) ((rootHeight * 1.0f / height) * width);
                 }
                 break;
             case FIT_XY:

@@ -1,6 +1,6 @@
 package com.example.android.media.v2;
 
-import android.app.Activity;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.AttributeSet;
@@ -11,28 +11,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.lang.ref.WeakReference;
-
 public class VideoSurface extends SurfaceView {
 
     MediaPlayer mediaPlayer;
     private int mPlayingPosition;
-    private WeakReference<Activity> mWeakRefActivity;
     private Uri mUri;
     private VideoUtil.DisplayType mType = VideoUtil.DisplayType.CENTER;
+    private Context mContext;
 
-    public VideoSurface(Activity activity) {
-        super(activity, null);
-        init(activity);
+    public VideoSurface(Context context) {
+        super(context, null);
+        init(context);
     }
 
-    public VideoSurface(Activity activity, AttributeSet attrs) {
-        super(activity, attrs);
-        init(activity);
+    public VideoSurface(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
     }
 
-    private void init(Activity activity) {
-        mWeakRefActivity = new WeakReference<>(activity);
+    private void init(Context context) {
+        mContext = context;
 
         FrameLayout.LayoutParams lp =
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -74,10 +72,7 @@ public class VideoSurface extends SurfaceView {
         // todo throw exception.
         if (mUri == null) return;
 
-        Activity act = mWeakRefActivity.get();
-        if (act == null) return;
-
-        mediaPlayer = MediaPlayer.create(act, mUri, holder);
+        mediaPlayer = MediaPlayer.create(mContext, mUri, holder);
         mediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
             @Override
             public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
@@ -89,10 +84,7 @@ public class VideoSurface extends SurfaceView {
     }
 
     private void adjustVideoSize(int width, int height) {
-        Activity act = mWeakRefActivity.get();
-        if (act == null) return;
-
-        VideoUtil.adjustSize(act.getWindowManager(), this, width, height, mType);
+        VideoUtil.adjustSize(this, width, height, mType);
     }
 
     public void setVideoDisplayType(VideoUtil.DisplayType type) {
