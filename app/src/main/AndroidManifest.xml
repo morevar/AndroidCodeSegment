@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".media.ActVideoDemo1" />
+        <activity android:name=".media.ActVideoDemo2" />
     </application>
 
 </manifest>

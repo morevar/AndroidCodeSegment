@@ -17,6 +17,7 @@ public class ImageSurface extends SurfaceView {
 
     public ImageSurface(Context context) {
         super(context, null);
+        icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
     }
 
     public ImageSurface(Context context, AttributeSet attrs) {

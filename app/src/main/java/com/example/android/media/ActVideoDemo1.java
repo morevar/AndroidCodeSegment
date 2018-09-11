@@ -15,6 +15,9 @@ import com.example.android.R;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * 使用SurfaceView播放视频的Demo
+ */
 public class ActVideoDemo1 extends AppCompatActivity implements View.OnClickListener {
     SurfaceView mVideoView;
     ImageSurface mImageView;
