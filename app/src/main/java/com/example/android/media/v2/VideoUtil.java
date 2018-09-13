@@ -7,7 +7,7 @@ import android.view.ViewParent;
 
 public class VideoUtil {
 
-    enum DisplayType {
+    public enum DisplayType {
         /**
          * 居中展示（不进行缩放，可能会有平移）
          */
@@ -28,12 +28,12 @@ public class VideoUtil {
 
     /**
      * 调整SurfaceView的宽高与translation
-     * @param surfaceView 展示图片或视频的SurfaceView
+     * @param surfaceView 展示图片或视频的SurfaceView/TextureView
      * @param width {@link MediaPlayer.OnVideoSizeChangedListener#onVideoSizeChanged} 方法中的width
      * @param height {@link MediaPlayer.OnVideoSizeChangedListener#onVideoSizeChanged} 方法中的height
      * @param type 图片或视频的展示方式
      */
-    public static void adjustSize(SurfaceView surfaceView, int width, int height, DisplayType type) {
+    public static void adjustSize(View surfaceView, int width, int height, DisplayType type) {
         int rootWidth;  // = windowManager.getDefaultDisplay().getWidth();
         int rootHeight; // = windowManager.getDefaultDisplay().getHeight();
         ViewParent viewParent = surfaceView.getParent();

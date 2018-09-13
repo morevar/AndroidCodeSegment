@@ -3,6 +3,7 @@ package com.example.android.media;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,19 +11,16 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.example.android.R;
-import com.example.android.media.v2.VideoSurface;
+import com.example.android.media.v2.VideoTextureView;
 import com.example.android.media.v2.VideoUtil;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-/**
- * 使用SurfaceView播放视频的Demo
- * 在 {@link ActVideoDemo1} 的基础上修改，提取出了 {@link VideoSurface} 和 {@link com.example.android.media.v2.VideoUtil} 两个类
- */
-public class ActVideoDemo2 extends AppCompatActivity {
+public class ActVideoDemo201 extends AppCompatActivity {
 
-    VideoSurface mVideoView;
+
+    VideoTextureView mVideoView;
     ImageSurface mImageView;
 
     @Override
@@ -65,11 +63,17 @@ public class ActVideoDemo2 extends AppCompatActivity {
         FrameLayout.LayoutParams lp =
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mImageView.setLayoutParams(lp);
+        //mImageView.setVisibility(View.GONE);
         root.addView(mImageView);
 
-        mVideoView = new VideoSurface(this);
+        mVideoView = new VideoTextureView(this);
+        mVideoView.setEvent(new VideoTextureView.IEvent() {
+            @Override
+            public void onPlay() {
+                //mImageView.setVisibility(View.INVISIBLE);
+            }
+        });
         mVideoView.setVisibility(View.GONE);
-        // TODO 注意此处：FIT_XY返回最近任务列表OK，其他的有问题
         mVideoView.setVideoDisplayType(VideoUtil.DisplayType.CENTER_CROP);
         mVideoView.setUri(Uri.parse("http://s3.bytecdn.cn/aweme/resource/web/static/image/index/tvc-v2_30097df.mp4"));
         root.addView(mVideoView);
@@ -79,16 +83,16 @@ public class ActVideoDemo2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mVideoView != null && mVideoView.isPlaying()) {
+                    Log.d("--->>>", "onClick: Pause ...");
                     // 停止播放视频
                     mVideoView.pause();
-
-                    mVideoView.setVisibility(View.GONE);
-                    mImageView.setVisibility(View.VISIBLE);
+                    mVideoView.setVisibility(View.INVISIBLE);
+                    //mImageView.setVisibility(View.VISIBLE);
                     ((Button) v).setText("Play");
                 } else {
+                    Log.d("--->>>", "onClick: Play ...");
                     // 继续播放视频
-                    mImageView.setVisibility(View.GONE);
-                    //mVideoView.setVisibility(View.VISIBLE);
+                    mVideoView.setVisibility(View.VISIBLE);
                     if (mVideoView != null) {
                         mVideoView.resume();
                     }
@@ -98,22 +102,26 @@ public class ActVideoDemo2 extends AppCompatActivity {
         });
     }
 
+    private boolean mIsMediaPlayingBeforePause = false;
     @Override
     protected void onPause() {
-        if (mVideoView != null) {
-            mIsPlayingBeforePause = mVideoView.isPlaying();
+        if (mVideoView.isPlaying()) {
+            mIsMediaPlayingBeforePause = true;
             mVideoView.pause();
+        } else {
+            mIsMediaPlayingBeforePause = false;
         }
         super.onPause();
     }
 
-    private boolean mIsPlayingBeforePause = false;
-
     @Override
     protected void onResume() {
-        if (mVideoView != null && mIsPlayingBeforePause) {
+        // 此处直接调用VideoView的resume可能会出现短时间的黑屏/白屏（因为onPause时Surface会destroy，onResume时重新创建需要时间）
+        Log.d("--->>>", "onResume: ---------");
+        super.onResume();
+        if (mIsMediaPlayingBeforePause) {
+            // TODO loading view here
             mVideoView.resume();
         }
-        super.onResume();
     }
 }

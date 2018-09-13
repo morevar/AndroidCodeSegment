@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+/**
+ * 不适合播放视频，切换App时（onPause/onResume）会有背景抖动等问题。
+ */
 public class VideoSurface extends SurfaceView {
 
     MediaPlayer mediaPlayer;
